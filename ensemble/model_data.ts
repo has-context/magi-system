@@ -103,7 +103,7 @@ export type ModelProviderID =
     | 'test';
 
 // Import from the local symlink which points to the common file
-import { ModelClassID } from '../types/shared-types.js';
+import { ModelClassID } from './types.js';
 
 // Re-export for backward compatibility
 export type { ModelClassID };

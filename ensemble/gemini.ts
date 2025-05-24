@@ -32,7 +32,7 @@ import {
     StreamingEvent,
     ToolCall, // Internal representation
     ResponseInput,
-} from '../types/shared-types.js'; // Adjust path as needed
+} from './types.js'; // Adjust path as needed
 import { costTracker } from '../utils/cost_tracker.js'; // Adjust path as needed
 import {
     log_llm_error,

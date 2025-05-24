@@ -95,7 +95,7 @@ import {
     ResponseInputMessage,
     ResponseThinkingMessage,
     ResponseOutputMessage,
-} from '../types/shared-types.js';
+} from './types.js';
 import { costTracker } from '../utils/cost_tracker.js';
 import {
     log_llm_error,

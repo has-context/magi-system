@@ -45,7 +45,7 @@ export default [
             '**/*.js',
             '**/*.js.map',
         ],
-        files: ['controller/src/**/*.ts', 'magi/src/**/*.ts'],
+        files: ['controller/src/**/*.ts', 'magi/src/**/*.ts', 'ensemble/**/*.ts'],
     },
     // Add Prettier plugin rules
     {

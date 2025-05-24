@@ -13,7 +13,7 @@ import {
     StreamingEvent,
     ToolCall,
     ResponseInput,
-} from '../types/shared-types.js'; // Adjust path as needed
+} from './types.js'; // Adjust path as needed
 import OpenAI, { APIError } from 'openai';
 import { v4 as uuidv4 } from 'uuid';
 import { costTracker } from '../utils/cost_tracker.js'; // Adjust path as needed

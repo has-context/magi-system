@@ -12,7 +12,7 @@ import {
     StreamingEvent,
     ToolCall,
     ResponseInputItem,
-} from '../types/shared-types.js';
+} from './types.js';
 import { v4 as uuidv4 } from 'uuid';
 import { Agent } from '../utils/agent.js';
 import { costTracker } from '../utils/cost_tracker.js';

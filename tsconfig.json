@@ -24,6 +24,7 @@
         }
     },
     "include": [
+        "ensemble/**/*",
         "magi/**/*",
         "controller/**/*",
         "browser/**/*",

@@ -5,7 +5,7 @@
  * to get the appropriate provider implementation.
  */
 
-import { ModelProvider as BaseModelProvider } from '../types/shared-types.js';
+import { ModelProvider as BaseModelProvider } from './types.js';
 
 // Extend the base ModelProvider interface to add embedding support
 export interface ModelProvider extends BaseModelProvider {
