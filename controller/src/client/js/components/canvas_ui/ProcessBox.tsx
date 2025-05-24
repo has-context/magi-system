@@ -4,6 +4,7 @@
  */
 import React from 'react';
 import { useRef, useEffect, useState } from 'react';
+import { processMessages } from '../utils/ProcessBoxUtils';
 import { ProcessStatus } from '../../../../types';
 import { useSocket } from '../../context/SocketContext';
 import MessageList from '../message/MessageList';
@@ -52,6 +53,14 @@ const ProcessBox: React.FC<ProcessBoxProps> = ({
     const messages = process ? process.agent.messages : [];
     const agentName = process?.agent.name;
     const isTyping = process?.agent.isTyping || false;
+    const heavyAgent = agentName
+        ? ['browser', 'code', 'design'].some(t =>
+              agentName.toLowerCase().includes(t)
+          )
+        : false;
+    const displayMessages = heavyAgent
+        ? messages
+        : processMessages(messages).slice(-1);
 
     // Effect to handle mount animation
     useEffect(() => {
@@ -126,7 +135,7 @@ const ProcessBox: React.FC<ProcessBoxProps> = ({
                 <AutoScrollContainer className="process-logs card-body">
                     <MessageList
                         agent={process?.agent}
-                        messages={messages}
+                        messages={displayMessages}
                         isTyping={isTyping}
                         colors={colors}
                     />

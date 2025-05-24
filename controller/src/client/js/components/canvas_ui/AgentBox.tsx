@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useRef, useEffect, useState } from 'react';
+import { processMessages } from '../utils/ProcessBoxUtils';
 import { ClientMessage } from '../../context/SocketContext';
 import MessageList from '../message/MessageList';
 import ProcessHeader from '../ui/ProcessHeader';
@@ -56,6 +57,12 @@ const AgentBox: React.FC<AgentBoxWithParentProcess> = ({
     const clickTimeout = useRef<number | null>(null);
     const clickCount = useRef<number>(0);
     const [mounted, setMounted] = useState(false);
+    const heavyAgent = ['browser', 'code', 'design'].some(t =>
+        agentName.toLowerCase().includes(t)
+    );
+    const displayMessages = heavyAgent
+        ? messages
+        : processMessages(messages).slice(-1);
 
     // Effect to handle mount animation
     useEffect(() => {
@@ -150,7 +157,7 @@ const AgentBox: React.FC<AgentBoxWithParentProcess> = ({
 
                 <AutoScrollContainer className="process-logs card-body">
                     <MessageList
-                        messages={messages}
+                        messages={displayMessages}
                         isTyping={isTyping}
                         colors={colors}
                     />
