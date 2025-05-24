@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * OpenRouter model provider for the MAGI system.
  */

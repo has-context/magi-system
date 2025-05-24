@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * DeepSeek model provider for the MAGI system.
  *

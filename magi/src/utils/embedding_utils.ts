@@ -8,7 +8,7 @@
 import {
     getModelFromClass,
     getModelProvider,
-} from '../model_providers/model_provider.js';
+} from '../../../ensemble/model_providers/model_provider.js';
 
 // Cache to avoid repeated embedding calls for the same text
 const embeddingCache = new Map<

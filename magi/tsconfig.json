@@ -17,6 +17,6 @@
             "@types/*": ["src/types/*"]
         }
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "../ensemble/**/*"],
     "exclude": ["node_modules", "dist"]
 }

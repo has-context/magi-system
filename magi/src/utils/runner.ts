@@ -24,14 +24,14 @@ import type {
     VerifierResult,
 } from '../types/shared-types.js';
 import { Agent } from './agent.js';
-import { getModelProvider } from '../model_providers/model_provider.js';
+import { request as ensembleRequest } from './ensemble.js';
 import {
     findModel,
     MODEL_CLASSES,
     ModelClassID,
     ModelEntry,
-} from '../model_providers/model_data.js';
-import { getModelFromClass } from '../model_providers/model_provider.js';
+} from '../../../ensemble/model_providers/model_data.js';
+import { getModelFromClass } from '../../../ensemble/model_providers/model_provider.js';
 import { processToolCall } from './tool_call.js';
 import { capitalize } from './llm_utils.js';
 import { getCommunicationManager, sendComms } from './communication.js';
@@ -270,9 +270,6 @@ export class Runner {
             };
 
             try {
-                // Get the model provider
-                const provider = getModelProvider(selectedModel);
-
                 // Ensure correct message sequence before sending
                 const sequencedMessages =
                     this.ensureToolResultSequence(messages);
@@ -316,11 +313,16 @@ export class Runner {
                     },
                 });
                 agent.model = selectedModel; // Update agent's selected model
-                // Create the original stream from the provider
-                const originalStream = provider.createResponseStream(
+                // Create the original stream using the ensemble request API
+                const originalStream = ensembleRequest(
                     selectedModel,
                     sequencedMessages,
-                    agent
+                    {
+                        agentId: agent.agent_id,
+                        tools: await agent.getTools(),
+                        modelSettings: agent.modelSettings,
+                        modelClass: agent.modelClass,
+                    }
                 );
 
                 // Wrap the stream with our timeout proxy

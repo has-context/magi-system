@@ -16,7 +16,7 @@ import {
 } from './mech_state.js';
 import { describeHistory } from './history.js';
 import { ResponseInput } from '../types/shared-types.js';
-import { getModelFromClass } from '../model_providers/model_provider.js';
+import { getModelFromClass } from '../../../ensemble/model_providers/model_provider.js';
 import { MAGI_CONTEXT } from '../magi_agents/constants.js';
 import { getThoughtDelay } from './thought_utils.js';
 import { startTime } from '../magi_agents/operator_agent.js';

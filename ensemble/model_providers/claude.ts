@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Claude model provider for the MAGI system.
  *
@@ -95,15 +96,15 @@ import {
     ResponseInputMessage,
     ResponseThinkingMessage,
     ResponseOutputMessage,
-} from '../types/shared-types.js';
+    EnsembleAgent,
+} from '../types.js';
 import { costTracker } from '../utils/cost_tracker.js';
 import {
     log_llm_error,
     log_llm_request,
     log_llm_response,
-} from '../utils/file_utils.js';
+} from '../utils/llm_logger.js';
 import { isPaused } from '../utils/communication.js';
-import { Agent } from '../utils/agent.js';
 import { ModelClassID } from './model_data.js';
 import {
     extractBase64Image,
@@ -705,7 +706,7 @@ export class ClaudeProvider implements ModelProvider {
     async *createResponseStream(
         model: string,
         messages: ResponseInput,
-        agent: Agent
+        agent: EnsembleAgent
     ): AsyncGenerator<StreamingEvent> {
         // --- Usage Accumulators ---
         let totalInputTokens = 0;

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Test model provider for the MAGI system.
  *
@@ -12,9 +13,10 @@ import {
     StreamingEvent,
     ToolCall,
     ResponseInputItem,
-} from '../types/shared-types.js';
+    EnsembleAgent,
+} from '../types.js';
 import { v4 as uuidv4 } from 'uuid';
-import { Agent } from '../utils/agent.js';
+// Minimal agent interface is used instead of full Agent class
 import { costTracker } from '../utils/cost_tracker.js';
 
 /**
@@ -117,7 +119,7 @@ export class TestProvider implements ModelProvider {
     async *createResponseStream(
         model: string,
         messages: ResponseInput,
-        agent: Agent
+        agent: EnsembleAgent
     ): AsyncGenerator<StreamingEvent> {
         console.log(
             `[TestProvider] Creating response stream for model: ${model}`

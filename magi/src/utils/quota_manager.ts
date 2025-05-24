@@ -4,7 +4,7 @@
  * This module tracks quota usage across different model providers and their free/paid tiers
  */
 
-import { ModelProviderID } from '../model_providers/model_data.js';
+import { ModelProviderID } from '../../../ensemble/model_providers/model_data.js';
 import { QuotaUpdateEvent } from '../types/shared-types.js';
 import { sendStreamEvent } from './communication.js';
 

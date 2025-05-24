@@ -9,11 +9,11 @@ import {
     ModelUsage,
     TieredPrice,
     TimeBasedPrice,
-} from '../model_providers/model_data.js';
+} from '../../../ensemble/model_providers/model_data.js';
 import { CostUpdateEvent } from '../types/shared-types.js';
 import { sendStreamEvent } from './communication.js';
 import { quotaManager } from './quota_manager.js';
-import { getProviderFromModel } from '../model_providers/model_provider.js';
+import { getProviderFromModel } from '../../../ensemble/model_providers/model_provider.js';
 
 /**
  * Singleton class to track costs across all model providers

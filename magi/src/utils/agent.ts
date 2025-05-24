@@ -24,7 +24,7 @@ import { createToolFunction } from './tool_call.js';
 import { v4 as uuid } from 'uuid';
 // Import removed to fix lint error
 import { Runner } from './runner.js';
-import { ModelClassID } from '../model_providers/model_data.js';
+import { ModelClassID } from '../../../ensemble/model_providers/model_data.js';
 
 import { getAgentSpecificTools } from './custom_tool_utils.js';
 

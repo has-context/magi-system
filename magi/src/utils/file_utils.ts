@@ -10,7 +10,7 @@ import fs from 'fs';
 import path from 'path';
 import { ResponseInput, ToolFunction } from '../types/shared-types.js';
 import { createToolFunction } from './tool_call.js';
-import { ModelProviderID } from '../model_providers/model_data.js';
+import { ModelProviderID } from '../../../ensemble/model_providers/model_data.js';
 // Child process utilities are used via dynamic imports in functions below
 
 export function set_file_test_mode(mode: boolean): void {

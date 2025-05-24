@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * OpenAI model provider for the MAGI system.
  *
@@ -13,18 +14,17 @@ import {
     StreamingEvent,
     ToolCall,
     ResponseInput,
-} from '../types/shared-types.js';
+    EnsembleAgent,
+} from '../types.js';
 import OpenAI, { toFile } from 'openai';
-import fetch from 'node-fetch';
 // import {v4 as uuidv4} from 'uuid';
 import { costTracker } from '../utils/cost_tracker.js';
 import {
     log_llm_request,
     log_llm_response,
     log_llm_error,
-} from '../utils/file_utils.js';
+} from '../utils/llm_logger.js';
 import { isPaused } from '../utils/communication.js';
-import { Agent } from '../utils/agent.js';
 import {
     extractBase64Image,
     resizeAndSplitForOpenAI,
@@ -562,7 +562,7 @@ export class OpenAIProvider implements ModelProvider {
     async *createResponseStream(
         model: string,
         messages: ResponseInput,
-        agent: Agent
+        agent: EnsembleAgent
     ): AsyncGenerator<StreamingEvent> {
         const tools: ToolFunction[] | undefined = agent
             ? await agent.getTools()

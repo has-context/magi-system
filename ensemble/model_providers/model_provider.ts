@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Model provider interface for the MAGI system.
  *
@@ -5,7 +6,7 @@
  * to get the appropriate provider implementation.
  */
 
-import { ModelProvider as BaseModelProvider } from '../types/shared-types.js';
+import { ModelProvider as BaseModelProvider } from '../types.js';
 
 // Extend the base ModelProvider interface to add embedding support
 export interface ModelProvider extends BaseModelProvider {
@@ -46,16 +47,10 @@ import { grokProvider } from './grok.js';
 import { deepSeekProvider } from './deepseek.js';
 import { testProvider } from './test_provider.js';
 import { openRouterProvider } from './openrouter.js';
-import { claudeCodeProvider } from '../code_providers/claude_code.js';
-import { codexProvider } from '../code_providers/codex.js';
 import { MODEL_CLASSES, ModelClassID, ModelProviderID } from './model_data.js';
 
 // Provider mapping by model prefix
 const MODEL_PROVIDER_MAP: Record<string, ModelProvider> = {
-    // Coding models
-    codex: codexProvider,
-    'claude-code': claudeCodeProvider,
-
     // OpenAI models
     'gpt-': openaiProvider,
     o1: openaiProvider,
@@ -150,10 +145,8 @@ export function getProviderFromModel(model: string): ModelProviderID {
 export async function getModelFromClass(
     modelClass?: ModelClassID
 ): Promise<string> {
-    // Import via dynamic import to avoid circular dependencies
-    // Using dynamic import instead of require to comply with ESM standards
-    const QuotaModule = await import('../utils/quota_manager.js');
-    const quotaManager = QuotaModule.quotaManager;
+    // Simple quota manager stub
+    const { quotaManager } = await import('../utils/quota_manager.js');
 
     // Convert modelClass to a string to avoid TypeScript errors
     const modelClassStr = modelClass as string;

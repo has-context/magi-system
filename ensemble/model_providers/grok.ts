@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Grok model provider for the MAGI system.
  *

@@ -27,6 +27,7 @@
         "magi/**/*",
         "controller/**/*",
         "browser/**/*",
+        "ensemble/**/*",
         "common/**/*",
         "setup/**/*",
         "test/**/*",
