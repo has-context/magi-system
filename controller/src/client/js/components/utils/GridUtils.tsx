@@ -1,5 +1,5 @@
 /**
- * Grid Utilities for Process Grid Layout - Revised Deterministic Layout (Fixed Scope Error)
+ * Grid utilities for positioning boxes in a radial layout around the core process.
  */
 import { ProcessData } from '../../context/SocketContext';
 import { BoxPosition } from '../../../../types';
@@ -21,10 +21,10 @@ const MIN_ZOOM = 0.2; // Minimum allowed zoom level
 const MAX_ZOOM = 2; // Maximum allowed zoom level
 
 // --- Interfaces ---
-interface GridPosition {
-    row: number;
-    col: number;
-}
+// interface GridPosition {
+//     row: number;
+//     col: number;
+// }
 
 // --- Helper Functions ---
 
@@ -72,46 +72,11 @@ export const getOrigin = (containerSize: {
     };
 };
 
-/**
- * Calculates screen coordinates for the top-left of a grid cell.
- * Rows < -1 (worker rows) are treated as half the height of standard rows.
- */
-const gridToScreenCoords = (
-    row: number,
-    col: number,
-    originX: number,
-    originY: number,
-    squareWidth: number,
-    squareHeight: number
-): { x: number; y: number } => {
-    const fullStep = squareHeight + GRID_PADDING;
-    let y: number;
-
-    if (row >= -1) {
-        // Standard calculation for row 0, -1
-        y = originY + row * fullStep;
-    } else {
-        // Special calculation for rows < -1 (worker rows stacking upwards)
-        // Start from the position of row -1 and subtract half steps for subsequent rows
-        const yForRowMinus1 = originY - fullStep;
-        const numHalfStepsAboveRowMinus1 = -row - 1; // e.g., row -2 is 1 half step, row -3 is 2 half steps
-        y = yForRowMinus1 - numHalfStepsAboveRowMinus1 * (fullStep / 2);
-        // Alternative formula derived: y = originY - fullStep * (1 + (-row - 1) / 2)
-    }
-
-    return {
-        x: originX + col * (squareWidth + GRID_PADDING),
-        y: y,
-    };
-};
-
 // --- Main Exported Functions ---
 
 /**
- * Calculates grid positions using a revised deterministic layout:
- * - Core (Scale 2) at grid origin (0, 0).
- * - Scale 1 processes and Core's workers spread horizontally in row -1, starting above core's col 0.
- * - Workers of Scale 1 processes placed 2 per row, stacking vertically above their parent (row -2, -3, ...).
+ * Calculate positions for all boxes using a radial star layout.
+ * The core process is centred and every other task or worker orbits around it.
  */
 export const calculateBoxPositions = (
     coreProcessId: string,
@@ -120,133 +85,94 @@ export const calculateBoxPositions = (
 ): Map<string, BoxPosition> => {
     if (processes.size === 0) return new Map<string, BoxPosition>();
 
-    // --- Initialization ---
     const positionsMap = new Map<string, BoxPosition>();
-    // Stores calculated grid positions for parent lookup
-    const processGridPositions = new Map<string, GridPosition>();
-
     const { squareWidth, squareHeight, originX, originY } =
         getOrigin(containerSize);
 
-    // --- 1. Place Core Process ---
+    const centerX = originX + squareWidth / 2;
+    const centerY = originY + squareHeight / 2;
+
     const coreProcess = processes.get(coreProcessId);
     if (!coreProcess) {
         console.error(`Core process with ID ${coreProcessId} not found.`);
-        return new Map<string, BoxPosition>();
+        return positionsMap;
     }
 
-    const coreGridPos: GridPosition = { row: 0, col: 0 };
-    const { x: coreX, y: coreY } = gridToScreenCoords(
-        coreGridPos.row,
-        coreGridPos.col,
-        originX,
-        originY,
-        squareWidth,
-        squareHeight
+    positionsMap.set(coreProcessId, {
+        x: centerX - squareWidth / 2,
+        y: centerY - squareHeight / 2,
+        width: squareWidth,
+        height: squareHeight,
+        scale: CORE_SCALE,
+    });
+
+    const taskIds: string[] = [];
+    processes.forEach((_p, id) => {
+        if (id !== coreProcessId) taskIds.push(id);
+    });
+    if (coreProcess.agent?.workers) {
+        taskIds.push(...Array.from(coreProcess.agent.workers.keys()));
+    }
+
+    const hashString = (str: string) =>
+        str.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+    const orderedTaskIds = taskIds.sort(
+        (a, b) => hashString(a) - hashString(b)
     );
 
-    // Store BASE dimensions; scale will handle visual size
-    positionsMap.set(coreProcessId, {
-        x: coreX,
-        y: coreY,
-        width: squareWidth + GRID_PADDING / 2, // Store base width (1x1 cell)
-        height: squareHeight + GRID_PADDING / 2, // Store base height (1x1 cell)
-        scale: CORE_SCALE, // Scale indicates it visually covers 2x2
-    });
-    processGridPositions.set(coreProcessId, coreGridPos);
-
-    // --- 2. Prepare and Place Row -1 Items ---
-    const rowMinus1ItemIds: string[] = [];
-    processes.forEach((_process, id) => {
-        if (id !== coreProcessId) rowMinus1ItemIds.push(id); // Add non-core processes
-    });
-    const coreWorkers = coreProcess.agent?.workers
-        ? Array.from(coreProcess.agent.workers.keys())
-        : [];
-    rowMinus1ItemIds.push(...coreWorkers); // Add core's workers
-
-    let leftCol = 0; // Start placing leftwards from col -1
-    let rightCol = 1; // Start placing rightwards from col 0 (directly above core's left)
-    rowMinus1ItemIds.forEach((itemId, index) => {
-        const itemScale = DEFAULT_SCALE;
-        const itemWidth = squareWidth; // Base width/height for position calculation
-        const itemHeight = squareHeight;
-
-        // Assign column alternating right/left, starting from col 0
-        const itemCol = index % 2 === 0 ? leftCol-- : rightCol++;
-        const itemGridPos: GridPosition = { row: -1, col: itemCol };
-
-        const { x, y } = gridToScreenCoords(
-            itemGridPos.row,
-            itemGridPos.col,
-            originX,
-            originY,
-            squareWidth,
-            squareHeight
-        );
-        positionsMap.set(itemId, {
+    const coreHalf = (squareWidth * CORE_SCALE) / 2;
+    const taskHalf = (squareWidth * DEFAULT_SCALE) / 2;
+    const taskRadius = coreHalf + taskHalf + GRID_PADDING;
+    const taskStep =
+        orderedTaskIds.length > 0 ? (2 * Math.PI) / orderedTaskIds.length : 0;
+    const offset = (hashString(coreProcessId) % 360) * (Math.PI / 180);
+    orderedTaskIds.forEach((taskId, index) => {
+        const angle = offset + index * taskStep;
+        const x = centerX + taskRadius * Math.cos(angle) - squareWidth / 2;
+        const y = centerY + taskRadius * Math.sin(angle) - squareHeight / 2;
+        positionsMap.set(taskId, {
             x,
             y,
-            width: itemWidth, // Store base width
-            height: itemHeight, // Store base height
-            scale: itemScale, // Store correct scale for rendering/bounding box
+            width: squareWidth,
+            height: squareHeight,
+            scale: DEFAULT_SCALE,
         });
-        processGridPositions.set(itemId, itemGridPos);
     });
 
-    // --- 3. Place Workers of Scale 1 Processes ---
     processes.forEach((process, id) => {
-        if (id === coreProcessId) return; // Skip core process
+        const parentPos = positionsMap.get(id);
+        if (!parentPos || !process.agent?.workers) return;
 
-        if (process.agent?.workers && process.agent.workers.size > 0) {
-            const parentGridPos = processGridPositions.get(id);
-            if (!parentGridPos) {
-                console.error(
-                    `Could not find grid position for parent process ${id} when placing workers.`
-                );
-                return;
-            }
+        const parentScale = id === coreProcessId ? CORE_SCALE : DEFAULT_SCALE;
+        const parentHalf = (squareWidth * parentScale) / 2;
+        const workerHalf = (squareWidth * WORKER_SCALE) / 2;
+        const workerRadius = parentHalf + workerHalf + GRID_PADDING;
 
-            const workers = Array.from(process.agent.workers.keys());
-            workers.forEach((workerId, workerIndex) => {
-                // Determine the grid cell row (2 workers per row, stacking up)
-                const workerGridRow =
-                    parentGridPos.row - 1 - Math.floor(workerIndex / 2);
-                const workerGridCol = parentGridPos.col; // Align with parent column
+        const workers = Array.from(process.agent.workers.keys());
+        const step = workers.length > 0 ? (2 * Math.PI) / workers.length : 0;
+        const offset = (hashString(id) % 360) * (Math.PI / 180);
 
-                // Calculate base screen coords for the cell the worker pair resides in
-                const { x: cellX, y: cellY } = gridToScreenCoords(
-                    workerGridRow,
-                    workerGridCol,
-                    originX,
-                    originY,
-                    squareWidth,
-                    squareHeight
-                );
-
-                // Determine position within the cell (left or right)
-                const isLeftWorker =
-                    workerGridCol < 1
-                        ? workerIndex % 2 !== 0
-                        : workerIndex % 2 === 0;
-                // Position workers side-by-side within the cell width.
-                // Offset for the right worker is roughly half the cell width.
-                // A small padding adjustment might be needed depending on visuals.
-                const xOffset = isLeftWorker
-                    ? 0
-                    : squareWidth / 2 + GRID_PADDING / 4; // Adjusted offset for right worker
-                const workerX = cellX + xOffset;
-                const workerY = cellY; // Workers align vertically within their row
-
-                positionsMap.set(workerId, {
-                    x: workerX,
-                    y: workerY,
-                    width: squareWidth - GRID_PADDING / 2, // Store base width
-                    height: squareHeight - GRID_PADDING / 2, // Store base height
-                    scale: WORKER_SCALE,
-                });
+        workers.forEach((workerId, wIndex) => {
+            const angle = offset + wIndex * step;
+            const wx =
+                parentPos.x +
+                squareWidth / 2 +
+                workerRadius * Math.cos(angle) -
+                squareWidth / 2;
+            const wy =
+                parentPos.y +
+                squareHeight / 2 +
+                workerRadius * Math.sin(angle) -
+                squareHeight / 2;
+            positionsMap.set(workerId, {
+                x: wx,
+                y: wy,
+                width: squareWidth,
+                height: squareHeight,
+                scale: WORKER_SCALE,
             });
-        }
+        });
     });
 
     return positionsMap;

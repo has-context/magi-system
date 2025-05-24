@@ -56,6 +56,9 @@ const AgentBox: React.FC<AgentBoxWithParentProcess> = ({
     const clickTimeout = useRef<number | null>(null);
     const clickCount = useRef<number>(0);
     const [mounted, setMounted] = useState(false);
+    const heavyAgent = ['browser', 'code', 'design'].some(t =>
+        agentName.toLowerCase().includes(t)
+    );
 
     // Effect to handle mount animation
     useEffect(() => {
@@ -153,6 +156,7 @@ const AgentBox: React.FC<AgentBoxWithParentProcess> = ({
                         messages={messages}
                         isTyping={isTyping}
                         colors={colors}
+                        latestOnly={!heavyAgent}
                     />
                 </AutoScrollContainer>
             </div>

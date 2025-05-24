@@ -25,6 +25,8 @@ interface MessageListProps {
         bgColor: string;
         textColor: string;
     };
+    /** Only display the most recent message */
+    latestOnly?: boolean;
 }
 
 const MessageList: React.FC<MessageListProps> = ({
@@ -32,6 +34,7 @@ const MessageList: React.FC<MessageListProps> = ({
     messages,
     isTyping,
     colors,
+    latestOnly,
 }) => {
     colors = colors || {
         rgb: '0 0 0',
@@ -55,11 +58,14 @@ const MessageList: React.FC<MessageListProps> = ({
 
     // Process messages to handle deltas and sorting
     const filteredMessages = processMessages(messages);
+    const messagesToRender = latestOnly
+        ? filteredMessages.slice(-1)
+        : filteredMessages;
 
     return (
         <div className="message-container">
-            {filteredMessages.map((message, index) =>
-                renderMessage(message, colors.rgb, filteredMessages, index)
+            {messagesToRender.map((message, index) =>
+                renderMessage(message, colors.rgb, messagesToRender, index)
             )}
             {renderTypingIndicator(isTyping, colors.textColor)}
         </div>

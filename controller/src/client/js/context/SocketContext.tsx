@@ -1095,16 +1095,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
                         }
 
                         // Remove the process after animation delay
-                        /* Disabled for debugging for now... @todo only disable when entire system terminated (e.g. via SIGINT)
-						setTimeout(() => {
-							setProcesses(prevProcesses => {
-								const updatedProcesses = new Map(prevProcesses);
-								updatedProcesses.delete(event.id);
+                        setTimeout(() => {
+                            setProcesses(prevProcesses => {
+                                const updatedProcesses = new Map(prevProcesses);
+                                updatedProcesses.delete(event.id);
 
-								return updatedProcesses;
-							});
-						}, 1200); // Same delay as in ProcessUI
-						*/
+                                return updatedProcesses;
+                            });
+                        }, 1200); // Same delay as in ProcessUI
                     }
                 }
 

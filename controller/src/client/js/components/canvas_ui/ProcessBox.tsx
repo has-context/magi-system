@@ -52,6 +52,11 @@ const ProcessBox: React.FC<ProcessBoxProps> = ({
     const messages = process ? process.agent.messages : [];
     const agentName = process?.agent.name;
     const isTyping = process?.agent.isTyping || false;
+    const heavyAgent = agentName
+        ? ['browser', 'code', 'design'].some(t =>
+              agentName.toLowerCase().includes(t)
+          )
+        : false;
 
     // Effect to handle mount animation
     useEffect(() => {
@@ -129,6 +134,7 @@ const ProcessBox: React.FC<ProcessBoxProps> = ({
                         messages={messages}
                         isTyping={isTyping}
                         colors={colors}
+                        latestOnly={!isCoreProcess && !heavyAgent}
                     />
                 </AutoScrollContainer>
             </div>
